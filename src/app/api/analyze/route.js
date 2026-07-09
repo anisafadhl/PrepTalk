@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
+// Allow this serverless function to run for up to 60 seconds on Vercel (preventing 504 timeouts)
+export const maxDuration = 60;
+
 function countFillerWords(text) {
   const fillers = ["eee", "hmmm", "em", "eh", "uh", "um", "kayak", "apa namanya", "anu"];
   const textLower = text.toLowerCase();

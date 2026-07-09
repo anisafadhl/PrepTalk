@@ -218,7 +218,7 @@ export default function InterviewPage() {
             status: "Cukup Memuaskan",
             categories: { relevansi_konten: 85, kepercayaan_diri: 65, struktur_kalimat: 75 },
             feedback: "Jawaban Anda secara teori sudah baik, kurangi penggunaan kata 'eee'.",
-            next_question: "Mock next question: Bagaimana Anda membagi waktu dalam mengerjakan proyek?"
+            next_question: "Bagaimana Anda membagi waktu dalam mengerjakan proyek?"
           }
         };
 
