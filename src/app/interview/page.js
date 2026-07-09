@@ -274,7 +274,7 @@ export default function InterviewPage() {
         <ul className="checklist">
           <li className="active"><div className="icon">✓</div> Transkripsi Suara (Speech-to-Text)</li>
           <li className="active"><div className="icon">✓</div> Menghitung Filler Words</li>
-          <li><div className="icon">○</div> Mengevaluasi Relevansi (LLM Gemini)</li>
+          <li><div className="icon">○</div> Mengevaluasi Relevansi (Model AI)</li>
           {!isFinal && <li><div className="icon">○</div> Menyusun Pertanyaan Lanjutan</li>}
         </ul>
         

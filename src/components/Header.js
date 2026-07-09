@@ -305,16 +305,21 @@ export default function Header() {
           </div>
 
           {user ? (
-            <div className="user-profile-pill" onClick={() => setShowModal(true)} style={{ cursor: 'pointer' }}>
-              <div className="avatar">
-                <img 
-                  src={profile?.avatar_url || 'https://img.freepik.com/free-photo/close-up-smiley-woman-library_23-2149204737.jpg'} 
-                  alt="User Avatar" 
-                />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+              <a href="/dashboard" style={{ color: 'var(--foreground)', textDecoration: 'none', fontWeight: '500', fontSize: '0.95rem' }}>
+                Riwayat Evaluasi
+              </a>
+              <div className="user-profile-pill" onClick={() => setShowModal(true)} style={{ cursor: 'pointer' }}>
+                <div className="avatar">
+                  <img 
+                    src={profile?.avatar_url || 'https://img.freepik.com/free-photo/close-up-smiley-woman-library_23-2149204737.jpg'} 
+                    alt="User Avatar" 
+                  />
+                </div>
+                <span className="user-greeting">
+                  Halo, <strong>{profile?.username || user.email.split('@')[0]}!</strong>
+                </span>
               </div>
-              <span className="user-greeting">
-                Halo, <strong>{profile?.username || user.email.split('@')[0]}!</strong>
-              </span>
             </div>
           ) : (
             <div className="user-profile-pill" onClick={handleGuestClick} style={{ cursor: 'pointer' }}>
