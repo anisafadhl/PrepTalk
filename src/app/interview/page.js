@@ -8,6 +8,7 @@ export default function InterviewPage() {
   const router = useRouter();
   const [role, setRole] = useState('Software Engineer');
   const [userId, setUserId] = useState(null);
+  const [userName, setUserName] = useState('');
   
   // Tracking Multi-Question State
   const [questionIndex, setQuestionIndex] = useState(1);
@@ -30,6 +31,20 @@ export default function InterviewPage() {
         router.push('/');
       } else {
         setUserId(session.user.id);
+        
+        // Fetch profile to get username
+        supabase
+          .from('profiles')
+          .select('username, full_name')
+          .eq('id', session.user.id)
+          .single()
+          .then(({ data, error }) => {
+            if (data) {
+              setUserName(data.username || data.full_name || session.user.email.split('@')[0]);
+            } else {
+              setUserName(session.user.email.split('@')[0]);
+            }
+          });
       }
     });
 
@@ -284,7 +299,7 @@ export default function InterviewPage() {
             <div className="ai-avatar">🤖</div>
             <div className="ai-text">
               {questionIndex === 1 && (
-                 <p>Halo Ann! Selamat datang di sesi wawancara untuk posisi <strong>{role}</strong>. Mari kita mulai.</p>
+                 <p>Halo <strong>{userName || 'Kandidat'}</strong>! Selamat datang di sesi wawancara untuk posisi <strong>{role}</strong>. Mari kita mulai.</p>
               )}
               <p className="ai-question">{currentQuestion}</p>
             </div>
