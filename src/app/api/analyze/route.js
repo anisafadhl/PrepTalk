@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// Allow this serverless function to run for up to 60 seconds on Vercel (preventing 504 timeouts)
 export const maxDuration = 60;
 
 function countFillerWords(text) {
@@ -40,13 +38,11 @@ export async function POST(request) {
       return NextResponse.json({ error: "No audio file provided" }, { status: 400 });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY;
 
     // FALLBACK IF NO API KEY
     if (!apiKey || apiKey === "your_api_key_here") {
-      // Simulate network delay
       await new Promise(resolve => setTimeout(resolve, 2000));
-
       const transcript = "Halo, nama saya Budi. Eee pengalaman saya di software engineer adalah eee saya pernah membuat aplikasi e-commerce. Hmmm, disana saya menggunakan React dan Node js.";
       const { totalFillers, detectedFillers } = countFillerWords(transcript);
 
@@ -63,42 +59,42 @@ export async function POST(request) {
             kepercayaan_diri: 65,
             struktur_kalimat: 70
           },
-          feedback: "Anda berhasil menjelaskan pengalaman dengan cukup jelas. Namun, cobalah menggunakan metode STAR (Situation, Task, Action, Result) agar jawaban lebih terstruktur. Kurangi jeda 'eee' agar terdengar lebih meyakinkan.",
-          next_question: "Menarik, bisa Anda jelaskan lebih detail tantangan teknis terbesar saat membangun aplikasi e-commerce tersebut dan bagaimana Anda mengatasinya?"
+          feedback: "Anda berhasil menjelaskan pengalaman dengan cukup jelas. Namun, cobalah menggunakan metode STAR agar jawaban lebih terstruktur. Kurangi jeda 'eee' agar terdengar lebih meyakinkan.",
+          next_question: "Bagaimana Anda membagi waktu dalam mengerjakan proyek?"
         }
       });
     }
 
-    // Initialize Gemini SDK
-    const ai = new GoogleGenerativeAI(apiKey);
-    const model = ai.getGenerativeModel({ model: 'gemini-2.5-flash' });
-
-    // Convert audio file to Base64
+    // 1. Get Transcript (STT) using Groq Whisper API
+    const whisperFormData = new FormData();
+    // Convert audio file to a blob so Whisper can parse it
     const arrayBuffer = await audioFile.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    const base64Audio = buffer.toString('base64');
+    const audioBlob = new Blob([arrayBuffer], { type: audioFile.type || 'audio/webm' });
+    whisperFormData.append('file', audioBlob, 'recording.webm');
+    whisperFormData.append('model', 'whisper-large-v3-turbo');
+    whisperFormData.append('prompt', "Transkripsikan audio persis seperti yang diucapkan dalam bahasa Indonesia. Jangan terjemahkan. Sertakan semua kata pengisi (filler words) seperti 'eee', 'hmmm', 'em', 'eh', 'uh', 'um', 'kayak', 'apa namanya', 'anu'.");
+    whisperFormData.append('response_format', 'json');
 
-    // Clean mime type (e.g. "audio/webm;codecs=opus" -> "audio/webm")
-    const mimeType = audioFile.type.split(';')[0] || 'audio/webm';
-
-    // 1. Get Transcript (STT) using Gemini 1.5 Flash
-    const sttPrompt = "Transcribe the audio exactly as spoken in Indonesian. Do not translate. Include all filler words like 'eee', 'hmmm', 'uh'. Just output the transcript text.";
-    const sttResponse = await model.generateContent([
-      {
-        inlineData: {
-          data: base64Audio,
-          mimeType: mimeType
-        }
+    const whisperResponse = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`
       },
-      sttPrompt
-    ]);
+      body: whisperFormData
+    });
 
-    const transcript = sttResponse.response.text() || '';
+    if (!whisperResponse.ok) {
+      const errorText = await whisperResponse.text();
+      throw new Error(`Groq Whisper Error: ${whisperResponse.status} - ${errorText}`);
+    }
+
+    const whisperResult = await whisperResponse.json();
+    const transcript = whisperResult.text || '';
     
     // 2. Count Filler Words
     const { totalFillers, detectedFillers } = countFillerWords(transcript);
 
-    // 3. Evaluate Transcript
+    // 3. Evaluate Transcript using Groq Chat Completion (Llama 3.3 70B)
     const analysisPrompt = `
       Bertindaklah sebagai HRD profesional. Analisis jawaban berikut untuk posisi ${role}.
       Pertanyaan HRD: "${question}"
@@ -119,16 +115,31 @@ export async function POST(request) {
       }
     `;
 
-    const analysisResponse = await model.generateContent(analysisPrompt);
-    let analysisText = analysisResponse.response.text() || '{}';
-    
-    // Clean markdown if Gemini adds it
-    if (analysisText.startsWith('```json')) {
-      analysisText = analysisText.replace('```json\n', '').replace('```', '').trim();
-    } else if (analysisText.startsWith('```')) {
-      analysisText = analysisText.replace('```\n', '').replace('```', '').trim();
+    const chatResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          {
+            role: 'user',
+            content: analysisPrompt
+          }
+        ],
+        response_format: { type: 'json_object' }
+      })
+    });
+
+    if (!chatResponse.ok) {
+      const errorText = await chatResponse.text();
+      throw new Error(`Groq Chat Error: ${chatResponse.status} - ${errorText}`);
     }
 
+    const chatResult = await chatResponse.json();
+    let analysisText = chatResult.choices[0]?.message?.content || '{}';
     const analysisData = JSON.parse(analysisText);
 
     return NextResponse.json({
