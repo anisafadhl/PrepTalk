@@ -6,7 +6,7 @@
 
 ## 👥 Anggota Kelompok
 Proyek ini disusun dan dikembangkan oleh:
-* **Vellisa** (NIM: 24.01.53.0006)
+* **Go, Vellisa** (NIM: 24.01.53.0006)
 * **Anisa Fadhila** (NIM: 24.01.53.0010)
 * **Novelyna Fadhila** (NIM: 24.01.53.0032)
 
