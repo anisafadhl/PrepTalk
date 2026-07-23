@@ -105,7 +105,7 @@ begin
     new.id,
     split_part(new.email, '@', 1),
     'User PrepTalk',
-    'https://img.freepik.com/free-photo/close-up-smiley-woman-library_23-2149204737.jpg'
+    'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'
   );
   return new;
 end;

@@ -15,6 +15,7 @@ export default function Home() {
   
   // Auth form states
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [authError, setAuthError] = useState('');
@@ -93,6 +94,18 @@ export default function Home() {
     const cleanPassword = password.trim();
 
     try {
+      if (isForgotPassword) {
+        const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
+          redirectTo: `${window.location.origin}/update-password`,
+        });
+        if (error) throw error;
+        
+        showToast('Tautan pemulihan telah dikirim ke email Anda. Silakan periksa inbox/spam.', 'success');
+        setShowAuthModal(false);
+        setIsForgotPassword(false);
+        return;
+      }
+
       if (isSignUp) {
         // Call backend registration (bypasses rate limits and confirms email)
         const response = await fetch('/api/register', {
@@ -182,19 +195,21 @@ export default function Home() {
         <div className="modal-overlay auth-overlay">
           <div className="modal-content-card auth-card" onClick={(e) => e.stopPropagation()}>
             <div className="auth-header text-center">
-              <div className="auth-lock-icon">🔑</div>
+              <div className="auth-lock-icon">{isForgotPassword ? '✉️' : '🔑'}</div>
               <h2 className="modal-title mt-2">
-                {isSignUp ? 'Daftar Akun PrepTalk' : 'Masuk ke PrepTalk'}
+                {isForgotPassword ? 'Pulihkan Kata Sandi' : (isSignUp ? 'Daftar Akun PrepTalk' : 'Masuk ke PrepTalk')}
               </h2>
-              {showLockWarning && isSignUp && (
+              {showLockWarning && isSignUp && !isForgotPassword && (
                 <p className="text-danger mt-1 font-semibold" style={{ color: 'var(--danger)', fontWeight: 600, fontSize: '0.95rem' }}>
                   Required login to unlock
                 </p>
               )}
               <p className="text-muted mt-2" style={{ fontSize: '0.9rem', lineHeight: '1.5' }}>
-                {isSignUp 
-                  ? 'Daftarkan email Anda secara gratis untuk mulai merekam jawaban dan mendapatkan hasil rapor evaluasi AI secara permanen.'
-                  : 'Silakan masuk ke akun Anda untuk melanjutkan sesi simulasi wawancara kerja interaktif.'
+                {isForgotPassword
+                  ? 'Masukkan alamat email Anda dan kami akan mengirimkan tautan untuk mengatur ulang kata sandi Anda.'
+                  : (isSignUp 
+                    ? 'Daftarkan email Anda secara gratis untuk mulai merekam jawaban dan mendapatkan hasil rapor evaluasi AI secara permanen.'
+                    : 'Silakan masuk ke akun Anda untuk melanjutkan sesi simulasi wawancara kerja interaktif.')
                 }
               </p>
             </div>
@@ -218,39 +233,59 @@ export default function Home() {
                 />
               </div>
 
-              <div className="form-group">
-                <label className="form-label">Kata Sandi (Password)</label>
-                <input 
-                  type="password" 
-                  className="form-input" 
-                  value={password} 
-                  onChange={(e) => setPassword(e.target.value)} 
-                  placeholder="Minimal 6 karakter"
-                  required
-                />
-              </div>
+              {!isForgotPassword && (
+                <div className="form-group">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <label className="form-label" style={{ marginBottom: 0 }}>Kata Sandi (Password)</label>
+                    {!isSignUp && (
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          setIsForgotPassword(true);
+                          setAuthError('');
+                        }}
+                        style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: '500' }}
+                      >
+                        Lupa Password?
+                      </button>
+                    )}
+                  </div>
+                  <input 
+                    type="password" 
+                    className="form-input mt-2" 
+                    value={password} 
+                    onChange={(e) => setPassword(e.target.value)} 
+                    placeholder="Minimal 6 karakter"
+                    required
+                  />
+                </div>
+              )}
 
               <button 
                 type="submit" 
                 className="btn btn-primary mt-2" 
                 disabled={authLoading}
               >
-                {authLoading ? 'Memproses...' : (isSignUp ? 'Buat Akun Sekarang' : 'Masuk Sekarang')}
+                {authLoading ? 'Memproses...' : (isForgotPassword ? 'Kirim Tautan Pemulihan' : (isSignUp ? 'Buat Akun Sekarang' : 'Masuk Sekarang'))}
               </button>
 
               <div className="text-center mt-3" style={{ fontSize: '0.9rem' }}>
                 <span className="text-muted">
-                  {isSignUp ? 'Sudah memiliki akun? ' : 'Belum memiliki akun? '}
+                  {isForgotPassword ? 'Kembali ke ' : (isSignUp ? 'Sudah memiliki akun? ' : 'Belum memiliki akun? ')}
                 </span>
                 <button 
                   type="button" 
                   onClick={() => {
-                    setIsSignUp(!isSignUp);
+                    if (isForgotPassword) {
+                      setIsForgotPassword(false);
+                    } else {
+                      setIsSignUp(!isSignUp);
+                    }
                     setAuthError('');
                   }}
                   style={{ color: 'var(--primary)', fontWeight: 600 }}
                 >
-                  {isSignUp ? 'Masuk di sini' : 'Daftar di sini'}
+                  {isForgotPassword ? 'Halaman Masuk' : (isSignUp ? 'Masuk di sini' : 'Daftar di sini')}
                 </button>
               </div>
 

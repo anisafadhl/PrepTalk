@@ -9,6 +9,7 @@ export default function InterviewPage() {
   const [role, setRole] = useState('Software Engineer');
   const [userId, setUserId] = useState(null);
   const [userName, setUserName] = useState('');
+  const [showExitModal, setShowExitModal] = useState(false);
   
   // Tracking Multi-Question State
   const [questionIndex, setQuestionIndex] = useState(1);
@@ -286,7 +287,13 @@ export default function InterviewPage() {
   return (
     <div className="mt-2">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <div></div>
+        <button 
+          onClick={() => setShowExitModal(true)}
+          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--card-bg)', border: '1px solid var(--border)', padding: '0.5rem 1rem', borderRadius: '2rem', fontWeight: '500', cursor: 'pointer', color: 'var(--foreground)' }}
+          className="btn-back"
+        >
+          <span>←</span> Kembali ke Beranda
+        </button>
         <div style={{ background: 'rgba(255, 255, 255, 0.8)', border: '1px solid rgba(226, 232, 240, 0.8)', padding: '0.5rem 1.5rem', borderRadius: '2rem', fontWeight: '600' }}>
           Pertanyaan {questionIndex} / 5
         </div>
@@ -316,6 +323,8 @@ export default function InterviewPage() {
           <button 
             className={`record-btn ${isRecording ? 'recording' : ''}`}
             onClick={isRecording ? stopRecording : startRecording}
+            aria-label={isRecording ? "Hentikan rekaman jawaban" : "Mulai rekam jawaban suara"}
+            title={isRecording ? "Klik untuk menghentikan rekaman" : "Klik untuk mulai merekam"}
           >
             🎙
           </button>
@@ -339,6 +348,22 @@ export default function InterviewPage() {
           </div>
         </div>
       </div>
+
+      {showExitModal && (
+        <div className="modal-overlay" onClick={() => setShowExitModal(false)}>
+          <div className="modal-content-card text-center" style={{ maxWidth: '350px' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>⚠️</div>
+            <h2 className="modal-title">Akhiri Wawancara?</h2>
+            <p className="text-muted mt-2 mb-4" style={{ fontSize: '0.95rem', lineHeight: '1.5' }}>
+              Progres simulasi wawancara Anda saat ini akan dihapus dan tidak disimpan. Yakin ingin kembali ke Beranda?
+            </p>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+              <button className="btn btn-secondary" onClick={() => setShowExitModal(false)}>Batal</button>
+              <button className="btn btn-primary" style={{ background: 'var(--danger)' }} onClick={() => router.push('/')}>Ya, Keluar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

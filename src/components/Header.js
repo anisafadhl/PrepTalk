@@ -304,33 +304,35 @@ export default function Header() {
             <span>Prep<strong>Talk</strong></span>
           </div>
 
-          {user ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-              <a href="/dashboard" style={{ color: 'var(--foreground)', textDecoration: 'none', fontWeight: '500', fontSize: '0.95rem' }}>
-                Riwayat Evaluasi
-              </a>
-              <div className="user-profile-pill" onClick={() => setShowModal(true)} style={{ cursor: 'pointer' }}>
-                <div className="avatar">
-                  <img 
-                    src={profile?.avatar_url || 'https://img.freepik.com/free-photo/close-up-smiley-woman-library_23-2149204737.jpg'} 
-                    alt="User Avatar" 
-                  />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginLeft: 'auto' }}>
+            {user ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                <a href="/dashboard" style={{ color: 'var(--foreground)', textDecoration: 'none', fontWeight: '500', fontSize: '0.95rem' }}>
+                  Riwayat Evaluasi
+                </a>
+                <div className="user-profile-pill" onClick={() => setShowModal(true)} style={{ cursor: 'pointer' }}>
+                  <div className="avatar">
+                    <img 
+                      src={profile?.avatar_url || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'} 
+                      alt="User Avatar" 
+                    />
+                  </div>
+                  <span className="user-greeting">
+                    Halo, <strong>{profile?.username || user.email.split('@')[0]}!</strong>
+                  </span>
                 </div>
-                <span className="user-greeting">
-                  Halo, <strong>{profile?.username || user.email.split('@')[0]}!</strong>
+              </div>
+            ) : (
+              <div className="user-profile-pill" onClick={handleGuestClick} style={{ cursor: 'pointer' }}>
+                <div className="avatar" style={{ background: '#e2e8f0', color: '#64748b', fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  👤
+                </div>
+                <span className="user-greeting" style={{ paddingRight: '0.25rem' }}>
+                  <strong>Mode Tamu</strong>
                 </span>
               </div>
-            </div>
-          ) : (
-            <div className="user-profile-pill" onClick={handleGuestClick} style={{ cursor: 'pointer' }}>
-              <div className="avatar" style={{ background: '#e2e8f0', color: '#64748b', fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                👤
-              </div>
-              <span className="user-greeting" style={{ paddingRight: '0.25rem' }}>
-                <strong>Mode Tamu</strong>
-              </span>
-            </div>
-          )}
+            )}
+          </div>
         </nav>
       </header>
 
@@ -348,7 +350,7 @@ export default function Header() {
                 <div className="avatar-preview-container">
                   <img 
                     className="avatar-large"
-                    src={avatarUrl || 'https://img.freepik.com/free-photo/close-up-smiley-woman-library_23-2149204737.jpg'} 
+                    src={avatarUrl || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'} 
                     alt="Preview Avatar" 
                   />
                 </div>
