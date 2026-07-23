@@ -2,6 +2,8 @@
 
 **PrepTalk** adalah aplikasi web interaktif berbasis AI yang dirancang untuk membantu para kandidat mempersiapkan diri menghadapi wawancara kerja secara real-time. Aplikasi ini mengevaluasi jawaban lisan kandidat menggunakan kecerdasan buatan dan memberikan laporan hasil penilaian (rapor) secara instan.
 
+🌐 **Demo Website**: [https://preptalk-five.vercel.app/](https://preptalk-five.vercel.app/)
+
 ---
 
 ## 👥 Anggota Kelompok
@@ -26,13 +28,13 @@ Proyek ini disusun dan dikembangkan oleh:
    - Memberikan skor keseluruhan (*Overall Score*) dan status kelulusan.
    - Memberikan umpan balik/saran (*feedback*) HRD yang dipersonalisasi.
 4. **Integrasi Supabase Cloud**
-   - **Supabase Auth**: Pendaftaran dan login akun secara instan untuk mengamankan data pengguna.
+   - **Supabase Auth**: Pendaftaran, login akun, dan pemulihan kata sandi (*Forgot Password*) secara instan.
    - **Supabase Database**: Menyimpan laporan hasil evaluasi wawancara secara permanen di cloud.
    - **Supabase Storage**: Mengunggah foto profil kustom secara langsung dengan fitur penyunting/pemotong gambar (*Image Cropper*) interaktif.
 5. **Desain Antarmuka Premium & Responsif**
    - Menggunakan estetika modern dengan efek glassmorphism, gradasi warna pastel, dan efek bayangan melayang.
    - Mendukung penuh tampilan responsif untuk Desktop, Tablet, maupun Smartphone.
-   - Animasi notifikasi kustom (*Toast Alert*) untuk seluruh interaksi sistem.
+   - Animasi dialog konfirmasi dan notifikasi kustom (*Toast Alert*) untuk seluruh interaksi sistem.
 
 ---
 
@@ -48,7 +50,7 @@ Proyek ini disusun dan dikembangkan oleh:
 
 ### 1. Kloning Proyek
 ```bash
-git clone https://github.com/USERNAME/PrepTalk.git
+git clone https://github.com/anisafadhl/PrepTalk.git
 cd PrepTalk
 ```
 
